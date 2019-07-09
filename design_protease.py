@@ -92,6 +92,7 @@ def parse_args():
 	parser.add_argument("-test", "--test_mode", action="store_true", 
 		help="For debugging: test protocol, exiting before generating decoys.")
 	parser.add_argument("-sf", "--silent_file", required = True, help="Used to generate a silent file.")
+	parser.add_argument("-p1", "--position1", required = True, help="The pose number for the p1 substrate")
 	args = parser.parse_args()
 	return args
 
@@ -525,10 +526,44 @@ def main(args):
 	tf = make_task_factory(residue_selectors)
 
 	# iterate through all poses in the silent file
-	amino_acids = "ACDEFGHIKLMNPQRSTVWY"
-	first_three = args.silent_file.upper()
-	pose_list = []
+	silent_file = args.silent_file.upper()	
 	
+	if "." not in silent_file:
+		raise ValueError("Cleavage site not indicated")
+
+	start_variable = -1
+	end_variable = -1
+	cleavage = -1
+	for counter,char in enumerate(silent_file):
+		if start_variable == -1 and char == "_":
+			start_variable = counter
+		if start_variable != -1 and end_variable == -1 and char != "_" and char ! = ".":
+			end_variable = counter
+		if char == ".":
+			cleavage = counter
+		if end_variable != -1 and start_variable != -1:
+			break
+
+	if end_variable == -1 or start_variable == -1:
+		raise ValueError("The variable region was not found for substrate {}, start {}, end {}".format(silent_file, start_variable, end_variable))
+	
+	if cleavage < end_variable and cleavage > start_variable:
+		print("Cleavage in variable domain {}..{}..{}".format(start_variable, cleavage, end_variable))
+		var_mag = end_variable - start_variable - 1
+	else:
+		var_mag = end_variable - start_variable
+	
+	aa = "ACDEFGHIKLMNPQRSTVWY"
+	# find all posssible substrates to design
+	for variable_region in itertools.product(*[aa for i in range(var_mag)]):
+		directory = list(silent_file)
+		vc = 0
+		for counter,char in enumerate(silent_file):
+			if char == "_":
+				#change variable region in directory name to the currently considered possible substrate
+				directory[counter] = variable_region[vc]
+				vc += 1
+		
 	# get full path
 	dec_name = join(dir_name, first_three)
 	if os.path.exists(dec_name):
@@ -543,7 +578,7 @@ def main(args):
 			args.subst_site, args.cat_res, args.mutations)
 
 		# Running relax and design protocol
-		save_wt = False
+		:save_wt = False
 		if args.design_protease or args.design_peptide:
 			if not args.no_relax_comparison:
 				save_wt = True
