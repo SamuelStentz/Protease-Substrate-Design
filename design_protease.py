@@ -533,6 +533,10 @@ def main(args):
     if os.path.exists(dec_name):
         raise ValueError("Silentfile for {} substrates already exists at {}".format(silent_file, dec_name))
 
+    print('\nMaking directory: {}'.format(dec_name))
+    makedirs(dec_name)
+    dec_name = join(dec_name, silent_file)
+
     if "." not in silent_file:
         raise ValueError("Cleavage site not indicated")
 
@@ -561,8 +565,9 @@ def main(args):
     aa = "ACDEFGHIKLMNPQRSTVWY"
     # find all posssible substrates to design
     pose_list = []
+    i = 0
+    substrate = list(silent_file)
     for variable_region in itertools.product(*[aa for i in range(var_mag)]):
-        substrate = list(silent_file)
         vc = 0
         #change variable region in directory name to the currently considered possible substrate
         for counter,char in enumerate(silent_file):
@@ -573,7 +578,7 @@ def main(args):
         (begin, end) = args.pep_subset.split("-")
         begin = int(begin) - args.position1 + silent_file.index(".") - 1
         end = int(end) - args.position1 + silent_file.index(".")
-        substrate_designed = substrate
+        substrate_designed = substrate.copy()
         substrate_designed.remove(".")
         substrate_designed = substrate[begin:end]
         substrate_designed = "".join(substrate_designed)
@@ -589,13 +594,17 @@ def main(args):
                 save_wt = True
         
         # Doing design and outputting decoy
-        print('Designing...')
+        print('{}/{} complete: {}%\nDesigning...'.format(i, 20**var_mag, 100 * (i/(20**var_mag))))
         # add all pose outputs to a list
         pose = fastrelax(pose, sf, mm, taskfactory=tf)
         pose.pdb_info().name("substrate."+"".join(substrate))
         pose_list.append(pose)
+        i += 1
+        if i == 2:
+            break
 
     # write to file in desired directory
+    print(dec_name)
     io.poses_to_silent(pose_list, dec_name)
     
     # print out time it took to do this silent file call
