@@ -600,8 +600,6 @@ def main(args):
         pose.pdb_info().name("substrate."+"".join(substrate))
         pose_list.append(pose)
         i += 1
-        if i == 2:
-            break
 
     # write to file in desired directory
     print(dec_name)
