@@ -19,16 +19,20 @@ else:
 
 od = "/projects/f_sdk94_1/EnzymeModelling/SilentFiles/{}/{}"
 s = "/projects/f_sdk94_1/EnzymeModelling/CrystalStructure/{}.pdb"
+substrate_HCV = "A{}__C.ASHL"
+p1 = 203
 
-template = "python design_protease.py -s {} -od {} -sf {} -site 198 -ps \"198-202\" -cons ly104.cst -cr 72 96 154 -dprot 0 -dpep 0" 
+template = "python design_protease.py -s {} -od {} -sf {} -site 198 -ps \"198-202\" -cons ly104.cst -cr 72 96 154 -dprot 0 -dpep 0 -p1 {}" 
 
 aa = "ACDEFGHIKLMNPQRSTVWY"
 
 fh = open(txt, "w")
 
 for (i,j,k) in itertools.product(*[aa for i in range(3)]):
-	sf = i + j + k
-	command = template.format(s.format(protease), od.format(protease, sf), sf)
+	var = i + j + k
+	sf = substrate_HCV.format(var)
+	command = template.format(s.format(protease),
+		od.format(protease, sf), sf, p1)
 	fh.write("{}\n".format(command))
 fh.close()
 
