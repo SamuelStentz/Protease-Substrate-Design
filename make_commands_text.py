@@ -17,7 +17,7 @@ if args.text_file is None:
 else:
 	txt = args.text_file
 
-od = "/projects/f_sdk94_1/EnzymeModelling/SilentFiles/{}/{}"
+od = "/projects/f_sdk94_1/EnzymeModelling/SilentFiles/{}"
 s = "/projects/f_sdk94_1/EnzymeModelling/CrystalStructure/{}.pdb"
 substrate_HCV = "A{}__C.ASHL"
 p1 = 203
@@ -32,7 +32,7 @@ for (i,j,k) in itertools.product(*[aa for i in range(3)]):
 	var = i + j + k
 	sf = substrate_HCV.format(var)
 	command = template.format(s.format(protease),
-		od.format(protease, sf), sf, p1)
+		od.format(protease), sf, p1)
 	fh.write("{}\n".format(command))
 fh.close()
 

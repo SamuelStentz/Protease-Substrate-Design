@@ -530,13 +530,15 @@ def main(args):
     
     # get full path
     dec_name = join(dir_name, silent_file)
+    if not os.path.exists(dec_name):
+    	print('\nMaking directory: {}'.format(dec_name))
+    	makedirs(dec_name)
+
+    dec_name = join(dec_name, silent_file)
+    
     if os.path.exists(dec_name):
         raise ValueError("Silentfile for {} substrates already exists at {}".format(silent_file, dec_name))
-
-    print('\nMaking directory: {}'.format(dec_name))
-    makedirs(dec_name)
-    dec_name = join(dec_name, silent_file)
-
+    
     if "." not in silent_file:
         raise ValueError("Cleavage site not indicated")
 

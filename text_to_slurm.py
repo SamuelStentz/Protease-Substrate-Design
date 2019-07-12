@@ -14,6 +14,7 @@ parser.add_argument("-mem", type=str)
 parser.add_argument("-delay", type=int)
 parser.add_argument("-batch", type=int)
 parser.add_argument("-np",type=int, help="ratio in each batch that should be parallel")
+parser.add_argument("-time", type=str)
 
 args = parser.parse_args()
 
@@ -25,6 +26,7 @@ delay = args.delay
 mem = args.mem
 batch = args.batch
 np = args.np
+time = args.time
 
 if np == None:
    np = 1
@@ -44,6 +46,9 @@ if path == None:
 if job_name == None:
     raise ValueError("no name given")
 
+if time == None:
+    time = "3-00:00:00"
+
 if not os.path.exists(filename) and not os.path.exists(os.path.join(os.getcwd(), filename)):
     raise ValueError("file specified not found")
 
@@ -60,7 +65,7 @@ header ="""#!/bin/bash
 #SBATCH --mem {3}
 #SBATCH --output {0}.log
 #SBATCH --error {0}.err
-#SBATCH --time 3-00:00:00
+#SBATCH --time {5}
 #SBATCH --begin now
 
 cd {4}
@@ -79,7 +84,7 @@ counter = 0
 
 while i < len(lineList) + batch:
     command = r"{}{}_{}.sh".format(sh, job_name, counter)
-    header_specific = header.format(job_name, counter, np, mem, path)
+    header_specific = header.format(job_name, counter, np, mem, path, time)
     if os.path.isfile(command):
         os.remove(command)
     f = open(command, "w")
