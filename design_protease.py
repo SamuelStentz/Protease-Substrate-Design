@@ -93,6 +93,7 @@ def parse_args():
         help="For debugging: test protocol, exiting before generating decoys.")
     parser.add_argument("-sf", "--silent_file", required = True, help="Used to generate a silent file.")
     parser.add_argument("-p1", "--position1", required = True, type = int, help="The pose number for the p1 substrate")
+    parser.add_argument("-st", "--substrate_txt", type = str, help = "")
     args = parser.parse_args()
     return args
 
@@ -564,6 +565,16 @@ def main(args):
     else:
         var_mag = end_variable - start_variable
     
+    # generate set of all possible substrates if a text file was provided
+    if args.substrate_txt != None:
+        fh = open(args.substrate_txt)
+        ll = fh.readlines()
+        fh.close()
+        sub_set = set([x.strip().upper() for x in ll])
+        print(sub_set)
+    else:
+        sub_set = set()
+
     aa = "ACDEFGHIKLMNPQRSTVWY"
     # find all posssible substrates to design
     pose_list = []
@@ -576,31 +587,33 @@ def main(args):
             if char == "_":
                 substrate[counter] = variable_region[vc]
                 vc += 1
-        #get just the substrate that will be selected
-        (begin, end) = args.pep_subset.split("-")
-        begin = int(begin) - args.position1 + silent_file.index(".") - 1
-        end = int(end) - args.position1 + silent_file.index(".")
-        substrate_designed = substrate.copy()
-        substrate_designed.remove(".")
-        substrate_designed = substrate[begin:end]
-        substrate_designed = "".join(substrate_designed)
+        # only model the substrate if it is in the set or a set wasn't provided
+        if args.substrate_txt == None or "".join(substrate) in sub_set:
+            #get just the substrate that will be selected
+            (begin, end) = args.pep_subset.split("-")
+            begin = int(begin) - args.position1 + silent_file.index(".") - 1
+            end = int(end) - args.position1 + silent_file.index(".")
+            substrate_designed = substrate.copy()
+            substrate_designed.remove(".")
+            substrate_designed = substrate[begin:end]
+            substrate_designed = "".join(substrate_designed)
 
-        pose = orig_pose.clone()
-        pose = make_residue_changes(pose, sf, substrate_designed, 
-            args.subst_site, args.cat_res, args.mutations)
+            pose = orig_pose.clone()
+            pose = make_residue_changes(pose, sf, substrate_designed, 
+                args.subst_site, args.cat_res, args.mutations)
 
-        # Running relax and design protocol
-        save_wt = False
-        if args.design_protease or args.design_peptide:
-            if not args.no_relax_comparison:
-                save_wt = True
-        
-        # Doing design and outputting decoy
-        print('{}/{} complete: {}%\nDesigning...'.format(i, 20**var_mag, 100 * (i/(20**var_mag))))
-        # add all pose outputs to a list
-        pose = fastrelax(pose, sf, mm, taskfactory=tf)
-        pose.pdb_info().name("substrate."+"".join(substrate))
-        pose_list.append(pose)
+            # Running relax and design protocol
+            save_wt = False
+            if args.design_protease or args.design_peptide:
+                if not args.no_relax_comparison:
+                    save_wt = True
+            
+            # Doing design and outputting decoy
+            print('{}/{} complete: {}%\nDesigning...'.format(i, 20**var_mag, 100 * (i/(20**var_mag))))
+            # add all pose outputs to a list
+            pose = fastrelax(pose, sf, mm, taskfactory=tf)
+            pose.pdb_info().name("substrate."+"".join(substrate))
+            pose_list.append(pose)
         i += 1
 
     # write to file in desired directory
