@@ -1,11 +1,16 @@
+"""
+example script:
+python text_to_slurm.py -txt /projects/f_sdk94_1/EnzymeModelling/Protease-Substrate-Design/HCV_R170K_A171T_D183A_commands.txt -job_name HCV_R170K_A171T_D183A -mem 12000 -path_operation /projects/f_sdk94_1/EnzymeModelling/Protease-Substrate-Design -path_sh /projects/f_sdk94_1/EnzymeModelling/Commands -batch 20 -time 2-00:00:00
+"""
+
 import os
 import argparse
 import itertools
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-txt","--text_file", help = "name of text file")
-parser.add_argument("-p","--protease", help = "name of the protease")
-parser.add_argument("-st", "substrate_txt", help= "name of text file containing substrates to include")
+parser.add_argument("-txt","--text_file", type = str, help = "name of text file")
+parser.add_argument("-p","--protease", type = str, help = "name of the protease")
+parser.add_argument("-st", "--substrate_txt", type = str, help= "name of text file containing substrates to include")
 
 args = parser.parse_args()
 
