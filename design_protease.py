@@ -91,7 +91,7 @@ def parse_args():
         being run, and a smaller set of relaxed models is generated for \
         comparison. This can be done by executing the same command, but with \
         -dprot 0 and -dpep 0")
-    parser.add_argument("-cp", "--constrain_peptide", type = bool, action="store_true",
+    parser.add_argument("-cp", "--constrain_peptide", action="store_true",
         help="Option to add coordinate constraints to the substrate peptide \
         backbone atoms. False by default.")
     parser.add_argument("-test", "--test_mode", action="store_true", 
