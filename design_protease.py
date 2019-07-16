@@ -39,6 +39,8 @@ from random import randint
 from sys import exit
 import itertools
 import time
+from pyrosetta.rosetta.protocols.constraint_generator import \
+    AddConstraints, CoordinateConstraintGenerator
 
 def parse_args():
     info = "Design a protease around a peptide sequence"
@@ -89,6 +91,9 @@ def parse_args():
         being run, and a smaller set of relaxed models is generated for \
         comparison. This can be done by executing the same command, but with \
         -dprot 0 and -dpep 0")
+    parser.add_argument("-cp", "--constrain_peptide", type = bool, action="store_true",
+        help="Option to add coordinate constraints to the substrate peptide \
+        backbone atoms. False by default.")
     parser.add_argument("-test", "--test_mode", action="store_true", 
         help="For debugging: test protocol, exiting before generating decoys.")
     parser.add_argument("-sf", "--silent_file", required = True, help="Used to generate a silent file.")
@@ -121,6 +126,15 @@ def init_opts(extra_opts, cst_file='ly104.cst'):
     print(ros_opts)
     return ros_opts
 
+def coord_constrain_peptide(pose, selection=ChainSelector('B')):
+    """ Applies backbone coordinate constraints to a selection of a pose """
+    cg = CoordinateConstraintGenerator()
+    if selection:
+        cg.set_residue_selector(selection)
+    ac = AddConstraints()
+    ac.add_generator(cg)
+    ac.apply(pose)
+    return pose
 
 def readfile(file_name):
     """ Opens a file in read-mode and returns a list of the text lines """
@@ -513,9 +527,11 @@ def main(args):
     # Getting score function
     sf = get_score_function(constraints=True, hbnet=args.use_hb_net)    
 
-    # Preparing pose, with constraints, manual mutations, substrate threading
+    # Preparing pose, with constraints, manual mutations, substrate threading, and coordinate constraint
     orig_pose = pose_from_pdb(args.start_struct)
     orig_pose = apply_constraints(orig_pose)
+    if args.constrain_peptide:
+        pose = coord_constrain_peptide(pose)
 
     # Making residue selectors
     residue_selectors = select_residues(args.cat_res, args.pep_subset, 

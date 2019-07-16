@@ -34,7 +34,7 @@ s = "/projects/f_sdk94_1/EnzymeModelling/CrystalStructure/{}.pdb"
 substrate_HCV = "A{}__C.ASHL"
 p1 = 203
 
-template = "python design_protease.py -s {} -od {} -sf {} -site 198 -ps \"198-202\" -cons ly104.cst -cr 72 96 154 -dprot 0 -dpep 0 -p1 {} {}" 
+template = "python design_protease.py -s {} -od {} -sf {} -site 198 -ps \"198-202\" -cons ly104.cst -cr 72 96 154 -cp True -dprot 0 -dpep 0 -p1 {} {}" 
 
 aa = "ACDEFGHIKLMNPQRSTVWY"
 
