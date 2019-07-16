@@ -7,18 +7,21 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-p","--protease", required = True, help = "name of the protease/folder name")
 parser.add_argument("-df","--destination_folder", required = True, help = "where to put the folders")
 parser.add_argument("-s","--substrate",required = True, help = "substrate full name in correct format, with _ implying variable regions. Should be contiguous")
+parser.add_argument("-st", "--substrate_text", help="text file of all intended substrates that should have been generated")
+
 
 args = parser.parse_args()
+
+if args.substrate_text is not None:
+	ll = open(args.substrate_text).readlines()
+	ll = [x.strip() for x in ll]
+else:
+	ll = []
 
 if not os.path.exists(args.destination_folder):
 	raise ValueError("Path {} not valid".format(args.destination_folder))
 
 prot_path = os.path.join(args.destination_folder, args.protease)
-
-if os.path.exists(prot_path):
-	raise ValueError("Folder path for {} exists ({})".format(args.protease, prot_path))
-
-os.mkdir(prot_path)
 
 if "." not in args.substrate:
 	raise ValueError("Cleavage site not indicated")
@@ -50,7 +53,15 @@ aa = "ACDEFGHIKLMNPQRSTVWY"
 
 sf_missing = []
 
-#make all necessary folders
+#change all substrate names into their silent file names and make those a set
+sf_required = set()
+for x in ll:
+	x = list(x)
+	x[end_variable - 1] = "_"
+	x[end_variable - 2] = "_"
+	sf_required.add("".join(x))
+
+#check all necessary folders
 for variable_region in itertools.product(*[aa for i in range(var_mag-2)]):
 	variable_counter = 0
 	directory = list(args.substrate)
@@ -59,10 +70,12 @@ for variable_region in itertools.product(*[aa for i in range(var_mag-2)]):
 			#change variable region in directory name to the currently considered possible substrate
 			directory[counter] = variable_region[variable_counter]
 			variable_counter += 1
-	sf_dir_path = os.path.join(prot_path, "".join(directory))
-	sf_path = os.path.join(sf_dir_path, "".join(directory))
-	if not os.path.isfile(sf_path):
-		sf_missing.append(sf_path)
+	if args.substrate_text is None or "".join(directory) in sf_required:
+		sf_dir_path = os.path.join(prot_path, "".join(directory))
+		sf_path = os.path.join(sf_dir_path, "".join(directory))
+		if not os.path.isfile(sf_path):
+			sf_missing.append(sf_path)
 
+print("Number of silent files missing:     {}".format(len(sf_missing)))
 print("Missing the following silent files: {}".format(sf_missing))
 

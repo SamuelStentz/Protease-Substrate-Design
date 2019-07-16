@@ -571,7 +571,6 @@ def main(args):
         ll = fh.readlines()
         fh.close()
         sub_set = set([x.strip().upper() for x in ll])
-        print(sub_set)
     else:
         sub_set = set()
 
