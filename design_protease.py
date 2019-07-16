@@ -616,7 +616,8 @@ def main(args):
         i += 1
 
     # write to file in desired directory
-    print(dec_name)
+    if os.path.exists(dec_name):
+        raise ValueError("Silentfile for {} substrates already exists at {}".format(silent_file, dec_name))
     io.poses_to_silent(pose_list, dec_name)
     
     # print out time it took to do this silent file call
