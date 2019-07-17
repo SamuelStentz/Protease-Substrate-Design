@@ -2,6 +2,8 @@ import os
 import argparse
 import itertools
 
+"""python test_silentfile_generation.py -p HCV -s A_____C.ASHL -df ../SilentFiles/ -st ../AvailableSubstrateFiles/HCV_sequences.txt"""
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument("-p","--protease", required = True, help = "name of the protease/folder name")
@@ -86,11 +88,14 @@ s = "/projects/f_sdk94_1/EnzymeModelling/CrystalStructure/{}.pdb"
 substrate_HCV = "A{}__C.ASHL"
 p1 = 203
 
-template = "python design_protease.py -s {} -od {} -sf {} -site 198 -ps \"198-202\" -cons ly104.cst -cr 72 96 154 -cp -dprot 0 -dpep 0 -p1 {}"
+template = "python design_protease.py -s {} -od {} -sf {} -site 198 -ps \"198-202\" -cons ly104.cst -cr 72 96 154 -dprot 0 -dpep 0 -p1 {}"
 
 fh = open(args.protease+"_missing.txt", "w")
 for sf in sf_missing:
-	command = template.format(s.format(args.protease), od.format(args.protease), sf, p1)
+	if not args.substrate_text is None:
+		command = template.format(s.format(args.protease), od.format(args.protease), sf, p1) + " -st {}".format(args.substrate_text)
+	else:
+		command = template.format(s.format(args.protease), od.format(args.protease), sf, p1)
 	fh.write(command + "\n")
 fh.close
 
