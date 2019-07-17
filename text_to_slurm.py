@@ -2,6 +2,10 @@
 # By default they are run at /scratch/ss3410/GCNN. Additionally, you can specify where to put the .sh output file.
 # By default they go down on file directory ex) /scratch/ss3410/GCNN/
 
+"""
+python text_to_slurm.py -txt /projects/f_sdk94_1/EnzymeModelling/Protease-Substrate-Design/HCV_D183A_commands.txt -job_name HCV_D183A -mem 12000 -path_operation /projects/f_sdk94_1/EnzymeModelling/Protease-Substrate-Design -path_sh /projects/f_sdk94_1/EnzymeModelling/Commands -batch 20 -time 2-00:00:00
+"""
+
 import argparse
 import os
 

@@ -531,7 +531,7 @@ def main(args):
     orig_pose = pose_from_pdb(args.start_struct)
     orig_pose = apply_constraints(orig_pose)
     if args.constrain_peptide:
-        pose = coord_constrain_peptide(pose)
+        orig_pose = coord_constrain_peptide(orig_pose)
 
     # Making residue selectors
     residue_selectors = select_residues(args.cat_res, args.pep_subset, 
