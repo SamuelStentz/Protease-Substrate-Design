@@ -74,8 +74,24 @@ for variable_region in itertools.product(*[aa for i in range(var_mag-2)]):
 		sf_dir_path = os.path.join(prot_path, "".join(directory))
 		sf_path = os.path.join(sf_dir_path, "".join(directory))
 		if not os.path.isfile(sf_path):
-			sf_missing.append(sf_path)
+			sf_missing.append("".join(directory))
 
 print("Number of silent files missing:     {}".format(len(sf_missing)))
 print("Missing the following silent files: {}".format(sf_missing))
+
+# write commands to make these silent files to a txt
+
+od = "/projects/f_sdk94_1/EnzymeModelling/SilentFiles/{}"
+s = "/projects/f_sdk94_1/EnzymeModelling/CrystalStructure/{}.pdb"
+substrate_HCV = "A{}__C.ASHL"
+p1 = 203
+
+template = "python design_protease.py -s {} -od {} -sf {} -site 198 -ps \"198-202\" -cons ly104.cst -cr 72 96 154 -cp -dprot 0 -dpep 0 -p1 {}"
+
+fh = open(args.protease+"_missing.txt", "w")
+for sf in sf_missing:
+	command = template.format(s.format(args.protease), od.format(args.protease), sf, p1)
+	fh.write(command + "\n")
+fh.close
+
 
