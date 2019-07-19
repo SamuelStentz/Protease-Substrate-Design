@@ -29,7 +29,7 @@ if args.substrate_txt is None:
 else:
 	st = "-st {}".format(args.substrate_txt)
 
-od = "/projects/f_sdk94_1/EnzymeModelling/SilentFiles/{}"
+od = "/projects/f_sdk94_1/EnzymeModelling/NewSilentFiles/{}"
 s = "/projects/f_sdk94_1/EnzymeModelling/CrystalStructure/{}.pdb"
 substrate_HCV = "A{}__C.ASHL"
 p1 = 203
